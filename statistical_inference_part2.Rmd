@@ -1,0 +1,65 @@
+# Basic Inferential Data Analysis of ToothGrowth data using R
+#Summary
+The response is the length of odontoblasts(cells responsible for tooth growth) in 60 guinea pigs. Each animal received one of the three dose levels of vitamin C(0.5,1 and 2 mg/day) by one of tow delivery methods, orange juice or ascorbic acid(a form of vitamin C and coded as VC).
+
+There are 60 observations and 3 variables.
+Variables are:
+1. len: numeric Tooth length
+2. supp factor: Supplement type(VC or OJ)
+3. dose: numeric Dose in milligrams/day
+
+```{r,eval=FALSE}
+library(UsingR)
+```
+
+#Dataset
+```{r}
+data("ToothGrowth")
+summary(ToothGrowth)
+```
+#Plot of tooth growth vs dose
+```{r}
+library(ggplot2)
+head(ToothGrowth)
+
+ToothGrowth$sup <- as.character(ToothGrowth$supp)
+
+ToothGrowth$sup[ToothGrowth$sup == "VC"] <- "VitaminC"
+ToothGrowth$sup[ToothGrowth$sup == "OJ"] <- "OrangeJuice"
+
+g <- ggplot(ToothGrowth,aes(dose,len))+geom_point(col="red")
+g+facet_grid(.~ sup)+scale_x_continuous(name = "Dose (miligram/day)")+scale_y_continuous("Length Tooth Growth")+geom_smooth(method = "lm")
+```
+###Summary
+Form the above graph it can be seen that for both Orange Juice and Vitamin C the tooth growth increases with the increase in dose.
+
+###Mean tooth growth for each dose
+```{r,eval=FALSE}
+library(reshape2)
+```
+```{r}
+meandose <- aggregate(len ~ dose,data = ToothGrowth,FUN = mean)
+head(meandose)
+```
+
+###Mean tooth growth for each suppliment
+```{r}
+meansupp <- aggregate(len ~ supp,data = ToothGrowth,FUN = mean)
+head(meansupp)
+```
+
+###Caluculating the confidence intervals for Orange Juice and Vitamin C suppliment
+```{r}
+orangejuice <- subset(ToothGrowth,ToothGrowth$supp == "OJ")
+vitaminC <- subset(ToothGrowth,ToothGrowth$supp == "VC")
+t.test(orangejuice$len - vitaminC$len)
+g <- ggplot(ToothGrowth, aes(x = supp, y = len, group = factor(dose)))
+g <- g + geom_line(size = 1, aes(colour = dose)) + geom_point(size =10, pch = 21, fill = "salmon", alpha = .5)
+g
+```
+
+
+###Conclusion:
+There seems a net increase in the tooth growth with the increase in the dose in each case where Orange Juice and and Vitamin C is used.
+Also, the Orange juice seems to perform better than vitamin C for tooth growth
+
